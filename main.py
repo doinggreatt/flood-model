@@ -52,6 +52,7 @@ def validate_data_intro():
             print('[E] Invalid option selected. Please choose 1, 2, 3, or 4.')
     except ValueError:
             print('[E] Invalid input. Please enter a number.')
+            main()
 
 
 def create_time_steps(length):
@@ -164,9 +165,7 @@ def make_prediction_intro():
             data_mean, data_std =  dataset_prepare(num, True)
             user_data = standardize_data(_user_data, data_mean, data_std)
             pred = make_prediction(user_data, num)
-            # pred_raw = destandardize_data(pred, data_mean, data_std)
-            # for i in pred_raw:
-            # print(i)
+
             pred_raw = pred * data_std[0] + data_mean[0]
             for i in pred_raw[0]:
                 print(i)
@@ -174,6 +173,7 @@ def make_prediction_intro():
             print('[E] Invalid option selected. Please choose 1, 2, 3, or Q.')
     except ValueError as _ex:
             print('[E] Invalid input. Please enter a number.', _ex)
+            main()
 
 
 def dataset_prepare(num, need_mean_data =False):
