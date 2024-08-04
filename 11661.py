@@ -2,7 +2,7 @@ import tensorflow as tf
 import pandas as pd 
 import numpy as np 
 from sklearn.metrics import mean_squared_error
-
+import matplotlib.pyplot as plt
 
 df = pd.read_excel('datasets/11661.xlsx')
 
@@ -53,7 +53,7 @@ def multivariate_data(dataset, target, start_index, end_index, history_size,
 
 x_train, y_train = multivariate_data(dataset, dataset[:, 0], 0, TRAIN_SPLIT, past_history, future_target, STEP)
 x_val, y_val = multivariate_data(dataset, dataset[:, 0], TRAIN_SPLIT, None, past_history, future_target, STEP)
-print(x_val.shape)
+
 train_data = tf.data.Dataset.from_tensor_slices((x_train, y_train))
 train_data = train_data.cache().shuffle(BUFFER_SIZE).batch(BATCH_SIZE).repeat()
 val_data = tf.data.Dataset.from_tensor_slices((x_val, y_val))
@@ -68,9 +68,6 @@ model.compile(optimizer='adam', loss='mse')
 
 model_history = model.fit(
     train_data, epochs=EPOCHS, steps_per_epoch=EVALUATION_INTERVAL, validation_data=val_data, validation_steps = VAL_STEPS)
-
-
-
 
 val_predictions = model.predict(x_val)
 val_predictions_raw = val_predictions * data_std[0] + data_mean[0]

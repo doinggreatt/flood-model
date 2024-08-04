@@ -2,8 +2,13 @@ import numpy as np
 import tensorflow as tf 
 import pandas as pd
 import matplotlib.pyplot as plt  
+import pyfiglet
 
 def print_intro():
+    print(pyfiglet.figlet_format('-----------'))
+    print(pyfiglet.figlet_format('WELCOME IN '))
+    print(pyfiglet.figlet_format('SHKO FLOOD PREDICTION APP'))
+    print(pyfiglet.figlet_format('-----------'))
     print('[I] This is a CLI application to use and validate water level forecasting neural networks')
     print('[I] They are based on Conditional Model Selection. There are 4 water bodies available.')
     print('[I] 1. р. Абылайкит - с. Самсоновка (Усть-Каменогорск), 2. р. Буктырма - c. Лесная Пристань (Алтайский район)')
@@ -17,6 +22,7 @@ def print_intro():
     print('[I] Now you have 2 available options.')
     print('[I] [1] Validate data on the validation sample.')
     print('[I] [2] Make a real prediction.')
+
 
 def multivariate_data(dataset, target, start_index, end_index, history_size,
                       target_size, step, single_step=False):
@@ -65,11 +71,11 @@ def model_plot(history, true_future, prediction):
   num_out = len(true_future)
 
   plt.plot(num_in, np.array(history[:, 1]), label='History')
-  plt.plot(np.arange(num_out)/1, np.array(true_future), 'bo',
-           label='True Future')
+  plt.plot(np.arange(num_out)/1, np.array(true_future), 'bo', label='True Future')
   if prediction.any():
-    plt.plot(np.arange(num_out)/1, np.array(prediction), 'ro',
-             label='Predicted Future')
+    plt.plot(np.arange(num_out)/1, np.array(prediction), 'ro', label='Predicted Future')
+  plt.xlabel('Days')
+  plt.ylabel('Water level')
   plt.legend(loc='upper left')
   plt.show()
 
@@ -88,7 +94,7 @@ def validate_data(num):
         3: 5100,
         4: 7000,
     }
-    dataset = dataset_prepare(num)
+    dataset, data_mean, data_std = dataset_prepare(num, True)
     split = splits[num]
     _model = 'models/model-' + codes[num]
     model = tf.keras.models.load_model(_model, compile=False)
@@ -104,8 +110,10 @@ def validate_data(num):
     print('Plotting graphs...')
     for x,y in val_data.take(plot_n):
         pred = model.predict(x)[0]
-
-        model_plot(x[0], y[0], pred)
+        pred_raw = pred * data_std[0] + data_mean[0]
+        history = x[0]*data_std[0] + data_mean[0]
+        true_future = y[0]*data_std[0] + data_mean[0]
+        model_plot(history, true_future, pred_raw)
 
 
 
@@ -131,8 +139,7 @@ def get_user_predictions():
 def standardize_data(data, mean, std):
     return (data - mean) / std 
 
-def destandardize_data(pred, mean, std):
-    return 0
+
 def make_prediction(user_data, num):
     codes = { 
       1: '11661.h5',
@@ -162,17 +169,18 @@ def make_prediction_intro():
     try: 
         num = int(input('[I] Choose an option: '))
         if num == 1 or num == 2 or num == 3 or num == 4:
-            data_mean, data_std =  dataset_prepare(num, True)
+            dataset, data_mean, data_std =  dataset_prepare(num, True)
             user_data = standardize_data(_user_data, data_mean, data_std)
             pred = make_prediction(user_data, num)
 
             pred_raw = pred * data_std[0] + data_mean[0]
             for i in pred_raw[0]:
                 print(i)
+
         else:
             print('[E] Invalid option selected. Please choose 1, 2, 3, or Q.')
     except ValueError as _ex:
-            print('[E] Invalid input. Please enter a number.', _ex)
+            print('[E] Invalid input. Please enter a number.')
             main()
 
 
@@ -201,7 +209,7 @@ def dataset_prepare(num, need_mean_data =False):
 
     dataset=(dataset-data_mean)/data_std
     if need_mean_data:
-        return data_mean, data_std
+        return dataset, data_mean, data_std
     return dataset
 
 def main():
@@ -217,6 +225,7 @@ def main():
             
     except ValueError:
         print('[E] Invalid input. Please enter a number.')
+        main()
 
 if __name__ == '__main__':
     main()
