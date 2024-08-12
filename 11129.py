@@ -62,7 +62,8 @@ model = tf.keras.models.Sequential()
 
 model.add(tf.keras.layers.LSTM(16, input_shape=x_train.shape[-2:], return_sequences=True))
 model.add(tf.keras.layers.LSTM(32, activation='relu', return_sequences=True))
-model.add(tf.keras.layers.LSTM(32, activation='relu'))
+model.add(tf.keras.layers.LSTM(32, activation='relu', return_sequences=True))
+model.add(tf.keras.layers.LSTM(16, activation='relu'))
 model.add(tf.keras.layers.Dense(future_target))
 
 model.compile(optimizer='adam', loss='mse') 
@@ -92,7 +93,6 @@ val_predictions_raw = val_predictions * data_std[0] + data_mean[0]
 y_val_raw = y_val * data_std[0] + data_mean[0]
 mse = mean_squared_error(y_val_raw, val_predictions_raw)
 val_loss = model.evaluate(val_data, steps=50)
-
 print('Raw data MSE:', mse)
 print('MSE:', val_loss)
 model.save('models/model-11129.h5')
