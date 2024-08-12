@@ -3,6 +3,8 @@ import tensorflow as tf
 import pandas as pd
 import matplotlib.pyplot as plt  
 import pyfiglet
+from sklearn.metrics import mean_squared_error
+
 
 def print_intro():
     print(pyfiglet.figlet_format('-----------'))
@@ -106,6 +108,11 @@ def validate_data(num):
     val_data = val_data.cache().batch(64).repeat()
     
     val_loss = model.evaluate(val_data, steps=50)
+    val_pred = model.predict(x_val)
+    val_pred_row = val_pred * data_std[0] + data_mean[0]
+    y_val_row = y_val * data_std[0] + data_mean[0]
+    mse = mean_squared_error(y_val_row, val_pred_row) 
+    print('Natural data mse: ', mse)
     print('Loss value:',val_loss)
     print('Plotting graphs...')
     for x,y in val_data.take(plot_n):
@@ -131,7 +138,6 @@ def get_user_predictions():
     data = np.array(data)
     data = np.hstack([data, np.full((7,1), month)])
     data = np.expand_dims(data, axis=-1)
-
 
 
     return data
