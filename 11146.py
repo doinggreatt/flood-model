@@ -76,40 +76,13 @@ model_history = model.fit(
     train_data, epochs=EPOCHS, steps_per_epoch=EVALUATION_INTERVAL, validation_data=val_data, validation_steps = VAL_STEPS)
 
 
-def model_plot(history, true_future, prediction):
-  plt.figure(figsize=(12, 6))
-  num_in = create_time_steps(len(history))
-  num_out = len(true_future)
 
-  plt.plot(num_in, np.array(history[:, 1]), label='History')
-  plt.plot(np.arange(num_out)/STEP, np.array(true_future), 'bo',
-           label='True Future')
-  if prediction.any():
-    plt.plot(np.arange(num_out)/STEP, np.array(prediction), 'ro',
-             label='Predicted Future')
-  plt.legend(loc='upper left')
-  plt.show()
 
 val_predictions = model.predict(x_val)
 val_predictions_raw = val_predictions * data_std[0] + data_mean[0]
 y_val_raw = y_val * data_std[0] + data_mean[0]
 mse = mean_squared_error(y_val_raw, val_predictions_raw)
 val_loss = model.evaluate(val_data, steps=50)
-
-def model_plot(history, true_future, prediction):
-  plt.figure(figsize=(12, 6))
-  num_in = create_time_steps(len(history))
-  num_out = len(true_future)
-
-  plt.plot(num_in, np.array(history[:, 1]), label='History')
-  plt.plot(np.arange(num_out)/1, np.array(true_future), 'bo',
-           label='True Future')
-  if prediction.any():
-    plt.plot(np.arange(num_out)/1, np.array(prediction), 'ro',
-             label='Predicted Future')
-  plt.legend(loc='upper left')
-  plt.show()
-
 
 print('Raw data MSE:', mse)
 print('MSE:', val_loss)
