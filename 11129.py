@@ -15,7 +15,7 @@ df['month_sin'] = np.sin(2 * np.pi * df['month'] / 12)
 
 features_considered = ['water_level', 'water_cons', 'month_sin', 'parc_press', 'osadki']
 features = df[features_considered]
-TRAIN_SPLIT = 3300
+TRAIN_SPLIT = 3500
 
 dataset = features.values
 data_mean = dataset[:TRAIN_SPLIT].mean(axis=0)
